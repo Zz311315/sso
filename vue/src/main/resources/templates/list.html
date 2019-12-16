@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>springboot-thymeleaf demo</title>
+    <script th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/vue/2.6.10/dist/vue.js}"></script>
+    <script th:src="@{/webjars/axios/0.19.0/dist/axios.js}"></script>
+    <script th:src="@{/webjars/moment/2.24.0/min/moment.min.js}"></script>
+</head>
+
+<body>
+
+
+<div id="div">
+    <form role="form" v-if="isAdd">
+        <div class="form-group">
+            <label for="stuName">用户名:</label>
+            <input type="text" id="stuName" class="form-control" placeholder="输入用户名" v-model="stuName" name="stuName">
+        </div>
+        <div class="form-group">
+            <label for="stuAge">年　龄:</label>
+            <input type="text" id="stuAge" class="form-control" placeholder="输入年龄" v-model="stuAge" name="stuAge">
+        </div>
+        <div class="form-group">
+            <label for="stuBir">生 日:</label>
+            <input type="text" id="stuBir" class="form-control" placeholder="输入年龄" v-model="stuBir" name="stuBir">
+        </div>
+        <div class="form-group">
+            <input type="button" value="添加" class="btn btn-primary" @click="add()">
+            <input type="reset" value="重置" class="btn btn-danger">
+        </div>
+    </form>
+
+
+
+    <form role="form" v-if="isUpdate">
+        <div class="form-group">
+            <label for="stuId">id:</label>
+            <input type="hidden" id="stuId"  v-model="Update.stuId" name="stuId">
+        </div>
+        <div class="form-group">
+            <label for="stuName">用户名:</label>
+            <input type="text" id="stuName1" v-model="Update.stuName" name="stuName">
+        </div>
+        <div class="form-group">
+            <label for="stuAge">年　龄:</label>
+            <input type="text" id="stuAge1" v-model="Update.stuAge" name="stuAge">
+        </div>
+        <div class="form-group">
+            <label for="stuBir">生 日:</label>
+            <input type="text" id="stuBir1" v-model="Update.stuBir" name="stuBir">
+        </div>
+        <div class="form-group">
+            <input type="button" value="提交" class="btn btn-primary" @click="update()">
+            <input type="reset" value="重置" class="btn btn-danger">
+        </div>
+    </form>
+
+    <table border="1">
+        <tr>
+            <td><button type="button"  @click="toAdd()">添加</button></td>
+        <tr>
+            <td>id</td>
+            <td>name</td>
+            <td>age</td>
+            <td>bir</td>
+            <td>操作</td>
+        </tr>
+        <tr v-for="stu in list">
+            <td>{{stu.stuId}}</td>
+            <td>{{stu.stuName}}</td>
+            <td>{{stu.stuAge}}</td>
+            <td>
+                {{stu.stuBir | dateFmt('YYYY-MM-DD')}}</td>
+            <td>
+                <a href="#nowhere" @click="del(stu.stuId)">删除</a>
+                <a href="#nowhere" @click="upd(stu.stuId)">修改</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+    let ad=Vue.component
+    Vue.filter('dateFmt', (input, formatString = "YYYY-MM-DD") => {
+        //es5函数参数设置默认值
+        //const lastFormatString = formatString || ''
+
+        // moment(input) 把时间字符串转成时间对象
+        // format(formatString) 把时间对象，按照指定格式，格式化成符合条件的字符串
+        return moment(input).format(formatString)
+    })
+    new Vue({
+        el:"#div",
+        data:{
+            list:[],
+            stuId:'',
+            stuName1:'',
+            stuAge1:'',
+            stuBir1:'',
+            stuName:'',
+            stuAge:'',
+            stuBir:'',
+
+            Update:{
+
+            },
+            isUpdate:false,
+            isAdd:false
+        },
+        mounted:function(){
+            this.lists();
+        },
+    methods: {
+        lists: function () {
+             axios.get('/stu/findAll').then(response => (
+                this.list = response.data)).catch(function (error) { // 请求失败处理
+                    console.log(error);
+                });
+            },
+        del: function (id) {
+            console.log(id);
+            axios.get('/stu/deleteById',{
+                params :{
+                    id:id
+                }
+            }).then(response => (
+                location.reload())).catch(function (error) { // 请求失败处理
+                console.log(error);
+            });
+        },
+        toAdd:function(){
+            this.isAdd = true;
+        },
+        add:function(){
+
+            axios.get('/stu/add',{
+                params :{
+                    stuName:this.stuName,
+                    stuAge:this.stuAge,
+                    stuBir:this.stuBir
+                }
+            }).then(response => (
+                location.reload())).catch(function (error) { // 请求失败处理
+                console.log(error);
+            });
+        },
+        upd:function (id) {
+            this.isUpdate = true;
+            axios.get('/stu/updataById',{
+                params:{
+                    id:id
+                }
+            }).then(response => (
+                this.Update=response.data
+            )).catch(function (error) { // 请求失败处理
+                console.log(error);
+            });
+        },
+        update:function(){
+            stuId=$("#stuId").val()
+            stuName1=$("#stuName1").val()
+            stuAge1=$("#stuAge1").val()
+            stuBir1=$("#stuBir1").val()
+            axios.get('/stu/update',{
+                params :{
+                    stuId:stuId,
+                    stuName:stuName1,
+                    stuAge:stuAge1,
+                    stuBir:stuBir1
+                }
+            }).then(response => (
+                location.reload())).catch(function (error) { // 请求失败处理
+                console.log(error);
+            });
+        },
+
+        }
+
+    })
+
+
+
+</script>
+
+</html>

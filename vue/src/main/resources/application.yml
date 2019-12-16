@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    druid:
+      username: root
+      password: ROOT
+      url: jdbc:mysql:///test
+      driver-class-name: com.mysql.jdbc.Driver
+      initial-size: 5
+mybatis:
+  mapper-locations: classpath:mapper/*Dao.xml
+  type-aliases-package: com.by.model
+  configuration:
+    map-underscore-to-camel-case: true
+server:
+  port: 8080

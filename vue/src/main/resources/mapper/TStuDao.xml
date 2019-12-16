@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.by.dao.TStuDao">
+
+    <resultMap type="com.by.entity.TStu" id="TStuMap">
+        <result property="stuId" column="stu_id" jdbcType="INTEGER"/>
+        <result property="stuName" column="stu_name" jdbcType="VARCHAR"/>
+        <result property="stuAge" column="stu_age" jdbcType="INTEGER"/>
+        <result property="stuBir" column="stu_bir" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TStuMap">
+        select
+          stu_id, stu_name, stu_age, stu_bir
+        from test.t_stu
+        where stu_id = #{stuId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TStuMap">
+        select
+          stu_id, stu_name, stu_age, stu_bir
+        from test.t_stu
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="TStuMap">
+        select
+          stu_id, stu_name, stu_age, stu_bir
+        from test.t_stu
+        <where>
+            <if test="stuId != null">
+                and stu_id = #{stuId}
+            </if>
+            <if test="stuName != null and stuName != ''">
+                and stu_name = #{stuName}
+            </if>
+            <if test="stuAge != null">
+                and stu_age = #{stuAge}
+            </if>
+            <if test="stuBir != null">
+                and stu_bir = #{stuBir}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="stuId" useGeneratedKeys="true">
+        insert into test.t_stu(stu_name, stu_age, stu_bir)
+        values (#{stuName}, #{stuAge}, #{stuBir})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update test.t_stu
+        <set>
+            <if test="stuName != null and stuName != ''">
+                stu_name = #{stuName},
+            </if>
+            <if test="stuAge != null">
+                stu_age = #{stuAge},
+            </if>
+            <if test="stuBir != null">
+                stu_bir = #{stuBir},
+            </if>
+        </set>
+        where stu_id = #{stuId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from test.t_stu where stu_id = #{stuId}
+    </delete>
+    <select id="findAll" resultMap="TStuMap">
+        select * from t_stu
+    </select>
+
+</mapper>
